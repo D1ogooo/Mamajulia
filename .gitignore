@@ -1,0 +1,57 @@
+# IDEs e Editores
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Arquivos de ambiente
+.env
+.env.local
+.env.*.local
+
+# Binários e executáveis
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+bin/
+dist/
+
+# Arquivos de banco de dados local (SQLite)
+*.db
+*.sqlite
+*.sqlite3
+mamajulia.db
+
+# Logs
+*.log
+logs/
+
+# Dependências (se usar vendor)
+vendor/
+
+# Arquivos temporários
+tmp/
+temp/
+*.tmp
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Go específico
+# Binários de teste
+*.test
+
+# Cobertura de código
+*.out
+coverage.html
+
+# Arquivos de build
+/cmd/api/api
+/cmd/api/*.exe

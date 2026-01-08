@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"mamajulia/src/services"
+	"mamajulia/internal/services"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

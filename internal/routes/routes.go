@@ -1,21 +1,43 @@
 package routes
 
 import (
-	"mamajulia/controllers"
+	"mamajulia/internal/controllers"
+	"mamajulia/internal/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRoutes(r *gin.Engine) {
-	users := r.Group("/auth")
+	auth := r.Group("/auth")
 	{
-		users.POST("/signin", controllers.Signin)
-		users.POST("/signup", controllers.Signup)
+		auth.POST("/signup", controllers.Signup)
+		auth.POST("/signin", controllers.Signin)
 	}
 
 	pratos := r.Group("/pratos")
 	{
-		pratos.GET("/show", controllers.GetPratos)
-		pratos.POST("/create", controllers.CreatePratos)
+		pratos.GET("", controllers.GetPratos)
+		pratos.GET("/:id", controllers.GetPratoByID)
+	}
+
+	protected := r.Group("/")
+	protected.Use(middlewares.AuthMiddleware())
+	{
+		pedidos := protected.Group("/pedidos")
+		{
+			pedidos.POST("", controllers.CreatePedido)
+		}
+
+		admin := protected.Group("/admin")
+		admin.Use(middlewares.AdminMiddleware())
+		{
+			admin.POST("/pratos", controllers.CreatePratos)
+			admin.PUT("/pratos/:id", controllers.UpdatePratos)
+			admin.DELETE("/pratos/:id", controllers.DeletePratos)
+
+			admin.GET("/pedidos", controllers.GetPedidos)
+			admin.GET("/pedidos/:id", controllers.GetPedidoByID)
+			admin.PUT("/pedidos/:id/status", controllers.UpdatePedidoStatus)
+		}
 	}
 }
