@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"mamajulia/internal/database"
 	"mamajulia/internal/routes"
 	config "mamajulia/pkg/configs"
 
