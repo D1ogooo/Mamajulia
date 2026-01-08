@@ -1,18 +1,5 @@
 # 🍽️ Mamajulia API
 
-## 📋 Índice
-
-- [Sobre o Projeto](#sobre-o-projeto)
-- [Tecnologias](#tecnologias)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Pré-requisitos](#pré-requisitos)
-- [Configuração](#configuração)
-- [Instalação](#instalação)
-- [Rotas da API](#rotas-da-api)
-- [Autenticação](#autenticação)
-- [Exemplos de Uso](#exemplos-de-uso)
-- [Estrutura de Dados](#estrutura-de-dados)
-
 ## 🎯 Sobre o Projeto
 
 API desenvolvida para gerenciar um restaurante com as seguintes funcionalidades:
