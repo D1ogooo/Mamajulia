@@ -2,13 +2,19 @@ package jwt
 
 import (
 	"errors"
-	"mamajulia/pkg/configs"
+	config "mamajulia/pkg/configs"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtKey = []byte(configs.Get("JWT_SECRET"))
+func getJWTKey() []byte {
+	secret := config.Get("JWT_SECRET")
+	if secret == "" {
+		secret = "default_secret_key_change_in_production"
+	}
+	return []byte(secret)
+}
 
 type Claims struct {
 	Email string `json:"email"`
@@ -27,13 +33,13 @@ func GenerateJWT(email, role string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtKey)
+	return token.SignedString(getJWTKey())
 }
 
 func ValidateToken(tokenString string) (*Claims, error) {
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
+		return getJWTKey(), nil
 	})
 
 	if err != nil {

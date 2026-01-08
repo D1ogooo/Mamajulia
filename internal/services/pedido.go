@@ -1,75 +1,40 @@
-package controllers
+package services
 
 import (
+	"errors"
+	"mamajulia/internal/database"
 	"mamajulia/internal/models"
-	"mamajulia/internal/services"
-	"net/http"
-	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
-func CreatePedido(c *gin.Context) {
+func CreatePedido(pedido models.Order) error {
+	return database.DB.Create(&pedido).Error
+}
+
+func GetAllPedidos() ([]models.Order, error) {
+	var pedidos []models.Order
+	if err := database.DB.Preload("Dishes.Dish").Find(&pedidos).Error; err != nil {
+		return nil, err
+	}
+	return pedidos, nil
+}
+
+func GetPedidoByID(id uint) (models.Order, error) {
 	var pedido models.Order
-	if err := c.ShouldBindJSON(&pedido); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	if err := database.DB.Preload("Dishes.Dish").First(&pedido, id).Error; err != nil {
+		return pedido, errors.New("pedido não encontrado")
 	}
-
-	pedido.Status = "em_andamento"
-
-	if err := services.CreatePedido(pedido); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{"message": "Pedido criado com sucesso!", "pedido": pedido})
+	return pedido, nil
 }
 
-func GetPedidos(c *gin.Context) {
-	pedidos, err := services.GetAllPedidos()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, pedidos)
-}
-
-func GetPedidoByID(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
-		return
+func UpdatePedidoStatus(id uint, status string) error {
+	if status != "em_andamento" && status != "entregue" {
+		return errors.New("status inválido. Use 'em_andamento' ou 'entregue'")
 	}
 
-	pedido, err := services.GetPedidoByID(uint(id))
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, pedido)
-}
-
-func UpdatePedidoStatus(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
-		return
+	var pedido models.Order
+	if err := database.DB.First(&pedido, id).Error; err != nil {
+		return errors.New("pedido não encontrado")
 	}
 
-	var statusData struct {
-		Status string `json:"status" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&statusData); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := services.UpdatePedidoStatus(uint(id), statusData.Status); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Status do pedido atualizado com sucesso!"})
+	return database.DB.Model(&pedido).Update("status", status).Error
 }
