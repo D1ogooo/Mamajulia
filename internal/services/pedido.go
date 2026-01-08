@@ -6,8 +6,17 @@ import (
 	"mamajulia/internal/models"
 )
 
-func CreatePedido(pedido models.Order) error {
-	return database.DB.Create(&pedido).Error
+func CreatePedido(pedido models.Order) (models.Order, error) {
+	if err := database.DB.Create(&pedido).Error; err != nil {
+		return pedido, err
+	}
+
+	var pedidoCriado models.Order
+	if err := database.DB.Preload("Dishes.Dish").First(&pedidoCriado, pedido.ID).Error; err != nil {
+		return pedidoCriado, err
+	}
+
+	return pedidoCriado, nil
 }
 
 func GetAllPedidos() ([]models.Order, error) {

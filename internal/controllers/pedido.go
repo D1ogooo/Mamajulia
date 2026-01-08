@@ -18,12 +18,13 @@ func CreatePedido(c *gin.Context) {
 
 	pedido.Status = "em_andamento"
 
-	if err := services.CreatePedido(pedido); err != nil {
+	pedidoCriado, err := services.CreatePedido(pedido)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Pedido criado com sucesso!", "pedido": pedido})
+	c.JSON(http.StatusCreated, gin.H{"message": "Pedido criado com sucesso!", "pedido": pedidoCriado})
 }
 
 func GetPedidos(c *gin.Context) {
