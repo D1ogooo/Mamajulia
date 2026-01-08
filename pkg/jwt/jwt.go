@@ -11,7 +11,7 @@ import (
 func getJWTKey() []byte {
 	secret := config.Get("JWT_SECRET")
 	if secret == "" {
-		secret = "default_secret_key_change_in_production"
+		secret = "default"
 	}
 	return []byte(secret)
 }
