@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"mamajulia/internal/database"
 	"mamajulia/internal/models"
 	"mamajulia/internal/services"
 	"net/http"
@@ -16,6 +17,25 @@ func CreatePedido(c *gin.Context) {
 		return
 	}
 
+	emailInterface, exists := c.Get("email")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuário não autenticado"})
+		return
+	}
+
+	email, ok := emailInterface.(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao processar autenticação"})
+		return
+	}
+
+	var user models.User
+	if err := database.DB.Where("email = ?", email).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Usuário não encontrado"})
+		return
+	}
+
+	pedido.UserID = user.ID
 	pedido.Status = "em_andamento"
 
 	pedidoCriado, err := services.CreatePedido(pedido)
@@ -73,4 +93,19 @@ func UpdatePedidoStatus(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Status do pedido atualizado com sucesso!"})
+}
+
+func DeletePedido(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	if err := services.DeletePedido(uint(id)); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Pedido deletado com sucesso!"})
 }

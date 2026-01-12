@@ -10,23 +10,35 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type SignupInput struct {
+	Name     string `json:"name" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+	Role     string `json:"role"`
+}
+
 func SignupService(c *gin.Context) error {
-	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
+	var input SignupInput
+	if err := c.ShouldBindJSON(&input); err != nil {
 		return err
 	}
 
 	var existingUser models.User
-	if err := database.DB.Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
+	if err := database.DB.Where("email = ?", input.Email).First(&existingUser).Error; err == nil {
 		return errors.New("email já cadastrado")
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
-	user.Password = string(hashedPassword)
+	user := models.User{
+		Name:     input.Name,
+		Email:    input.Email,
+		Password: string(hashedPassword),
+		Role:     input.Role,
+	}
 
 	if user.Role == "" {
 		user.Role = "user"

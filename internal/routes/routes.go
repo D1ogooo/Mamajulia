@@ -38,6 +38,7 @@ func SetupRoutes(r *gin.Engine) {
 			admin.GET("/pedidos", controllers.GetPedidos)
 			admin.GET("/pedidos/:id", controllers.GetPedidoByID)
 			admin.PUT("/pedidos/:id/status", controllers.UpdatePedidoStatus)
+			admin.DELETE("/pedidos/:id", controllers.DeletePedido)
 		}
 	}
 }

@@ -3,6 +3,7 @@ package database
 import (
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"mamajulia/internal/models"
@@ -16,24 +17,30 @@ var DB *gorm.DB
 func ConnectDatabase() {
 	dsn := os.Getenv("DATABASE_URL")
 
+	if dsn != "" && !strings.Contains(dsn, "prefer_simple_protocol") {
+		if strings.Contains(dsn, "?") {
+			dsn += "&prefer_simple_protocol=true"
+		} else {
+			dsn += "?prefer_simple_protocol=true"
+		}
+	}
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		PrepareStmt: false, // Desabilita prepared statements para evitar conflitos
+		PrepareStmt: false,
 	})
 	if err != nil {
 		log.Fatal("Erro ao conectar ao banco:", err)
 	}
 
-	// Configura o pool de conexões do SQL subjacente
 	sqlDB, err := db.DB()
 	if err != nil {
 		log.Fatal("Erro ao obter conexão SQL:", err)
 	}
 
-	// Configurações do pool de conexões
-	sqlDB.SetMaxIdleConns(10)                  // Máximo de conexões idle
-	sqlDB.SetMaxOpenConns(100)                 // Máximo de conexões abertas
-	sqlDB.SetConnMaxLifetime(time.Hour)        // Tempo máximo de vida da conexão
-	sqlDB.SetConnMaxIdleTime(10 * time.Minute) // Tempo máximo que uma conexão pode ficar idle
+	sqlDB.SetMaxIdleConns(5)
+	sqlDB.SetMaxOpenConns(25)
+	sqlDB.SetConnMaxLifetime(30 * time.Minute)
+	sqlDB.SetConnMaxIdleTime(5 * time.Minute)
 
 	err = db.AutoMigrate(
 		&models.User{},
@@ -41,6 +48,7 @@ func ConnectDatabase() {
 		&models.Order{},
 		&models.OrderDish{},
 	)
+
 	if err != nil {
 		log.Fatal("Erro ao migrar tabelas:", err)
 	}
