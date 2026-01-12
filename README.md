@@ -107,44 +107,6 @@ Faz login e retorna o token JWT.
 }
 ```
 
-### 🍽️ Pratos (Públicas)
-
-#### GET /pratos
-Lista todos os pratos disponíveis.
-
-#### GET /pratos/:id
-Busca um prato específico por ID.
-
-### 🔒 Pedidos (Requer Autenticação)
-
-#### POST /pedidos
-Cria um novo pedido. O usuário é identificado automaticamente pelo token JWT.
-
-
-### 👑 Administração (Requer Autenticação + Role "adm")
-
-#### POST /admin/pratos
-Cria um novo prato.
-
-#### PUT /admin/pratos/:id
-Atualiza um prato existente.
-
-#### DELETE /admin/pratos/:id
-Deleta um prato.
-
-#### GET /admin/pedidos
-Lista todos os pedidos (apenas admin).
-
-#### GET /admin/pedidos/:id
-Busca um pedido específico por ID (apenas admin).
-
-#### PUT /admin/pedidos/:id/status
-Atualiza o status de um pedido (apenas admin).
-
-#### DELETE /admin/pedidos/:id
-Deleta um pedido (apenas admin).
-
-
 ## 📊 Resumo das Rotas
 
 | Método | Rota | Autenticação | Role | Descrição |
