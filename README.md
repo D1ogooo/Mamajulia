@@ -72,13 +72,6 @@ JWT_SECRET=minha_chave_secreta_super_segura_12345
 ```
 
 
-### Como obter o token:
-1. Faça o cadastro em `POST /auth/signup`
-2. Faça login em `POST /auth/signin`
-3. Use o token retornado no header `Authorization` das requisições protegidas
-
-**Token expira em 24 horas**
-
 ## 📡 Rotas da API
 
 ### 🔓 Autenticação (Públicas)
