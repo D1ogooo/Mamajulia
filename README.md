@@ -101,14 +101,6 @@ JWT_SECRET=minha_chave_secreta_super_segura_12345
 }
 ```
 
-## 🔑 Autenticação
-
-A API utiliza autenticação JWT (JSON Web Tokens). Para acessar rotas protegidas, inclua o token no header:
-
-```
-Authorization: Bearer <seu_token_jwt>
-```
-
 ### Como obter o token:
 1. Faça o cadastro em `POST /auth/signup`
 2. Faça login em `POST /auth/signin`
@@ -133,19 +125,6 @@ Cadastra um novo usuário.
 }
 ```
 
-**Response (201 Created):**
-```json
-{
-  "message": "Usuário criado com sucesso!"
-}
-```
-
-**Erros:**
-- `400`: Dados inválidos ou email já cadastrado
-- Validações: email válido, senha mínimo 6 caracteres
-
----
-
 #### POST /auth/signin
 Faz login e retorna o token JWT.
 
@@ -157,337 +136,43 @@ Faz login e retorna o token JWT.
 }
 ```
 
-**Response (200 OK):**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-**Erros:**
-- `401`: Email ou senha incorretos
-
----
-
 ### 🍽️ Pratos (Públicas)
 
 #### GET /pratos
 Lista todos os pratos disponíveis.
 
-**Response (200 OK):**
-```json
-[
-  {
-    "id": 1,
-    "name": "Pizza Margherita",
-    "description": "Pizza tradicional italiana",
-    "value": 35.90,
-    "image": "https://exemplo.com/imagem.jpg"
-  }
-]
-```
-
----
-
 #### GET /pratos/:id
 Busca um prato específico por ID.
-
-**Parâmetros:**
-- `id` (path): ID do prato (número)
-
-**Response (200 OK):**
-```json
-{
-  "id": 1,
-  "name": "Pizza Margherita",
-  "description": "Pizza tradicional italiana",
-  "value": 35.90,
-  "image": "https://exemplo.com/imagem.jpg"
-}
-```
-
-**Erros:**
-- `400`: ID inválido
-- `404`: Prato não encontrado
-
----
 
 ### 🔒 Pedidos (Requer Autenticação)
 
 #### POST /pedidos
 Cria um novo pedido. O usuário é identificado automaticamente pelo token JWT.
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
-
-**Request Body:**
-```json
-{
-  "mesa_number": 5,
-  "dishes": [
-    {
-      "dish_id": 1,
-      "quantity": 2
-    },
-    {
-      "dish_id": 3,
-      "quantity": 1
-    }
-  ]
-}
-```
-
-**Response (201 Created):**
-```json
-{
-  "message": "Pedido criado com sucesso!",
-  "pedido": {
-    "id": 1,
-    "mesa_number": 5,
-    "status": "em_andamento",
-    "user_id": 1,
-    "dishes": [...],
-    "created_at": "2024-01-15T10:30:00Z"
-  }
-}
-```
-
-**Erros:**
-- `400`: Dados inválidos
-- `401`: Token não fornecido ou inválido
-- Validações: mesa_number obrigatório, dishes array não vazio, quantity > 0
-
----
 
 ### 👑 Administração (Requer Autenticação + Role "adm")
 
 #### POST /admin/pratos
 Cria um novo prato.
 
-**Headers:**
-```
-Authorization: Bearer <token_admin>
-```
-
-**Request Body:**
-```json
-{
-  "name": "Pizza Margherita",
-  "description": "Pizza tradicional italiana",
-  "value": 35.90,
-  "image": "https://exemplo.com/imagem.jpg" // opcional, gera placeholder se vazio
-}
-```
-
-**Response (201 Created):**
-```json
-{
-  "message": "Prato criado com sucesso!",
-  "prato": {
-    "id": 1,
-    "name": "Pizza Margherita",
-    "description": "Pizza tradicional italiana",
-    "value": 35.90,
-    "image": "https://exemplo.com/imagem.jpg"
-  }
-}
-```
-
-**Erros:**
-- `400`: Dados inválidos
-- `401`: Token não fornecido ou inválido
-- `403`: Acesso negado (apenas admin)
-- Validações: name, description, value obrigatórios, value > 0
-
----
-
 #### PUT /admin/pratos/:id
 Atualiza um prato existente.
-
-**Headers:**
-```
-Authorization: Bearer <token_admin>
-```
-
-**Parâmetros:**
-- `id` (path): ID do prato (número)
-
-**Request Body:**
-```json
-{
-  "name": "Pizza Margherita Atualizada",
-  "description": "Nova descrição",
-  "value": 39.90,
-  "image": "https://exemplo.com/nova-imagem.jpg"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "message": "Prato atualizado com sucesso!"
-}
-```
-
-**Erros:**
-- `400`: ID ou dados inválidos
-- `401`: Token não fornecido ou inválido
-- `403`: Acesso negado (apenas admin)
-- `404`: Prato não encontrado
-
----
 
 #### DELETE /admin/pratos/:id
 Deleta um prato.
 
-**Headers:**
-```
-Authorization: Bearer <token_admin>
-```
-
-**Parâmetros:**
-- `id` (path): ID do prato (número)
-
-**Response (200 OK):**
-```json
-{
-  "message": "Prato deletado com sucesso!"
-}
-```
-
-**Erros:**
-- `400`: ID inválido
-- `401`: Token não fornecido ou inválido
-- `403`: Acesso negado (apenas admin)
-- `404`: Prato não encontrado
-
----
-
 #### GET /admin/pedidos
 Lista todos os pedidos (apenas admin).
-
-**Headers:**
-```
-Authorization: Bearer <token_admin>
-```
-
-**Response (200 OK):**
-```json
-[
-  {
-    "id": 1,
-    "mesa_number": 5,
-    "status": "em_andamento",
-    "user_id": 1,
-    "user": {...},
-    "dishes": [...],
-    "created_at": "2024-01-15T10:30:00Z"
-  }
-]
-```
-
-**Erros:**
-- `401`: Token não fornecido ou inválido
-- `403`: Acesso negado (apenas admin)
-
----
 
 #### GET /admin/pedidos/:id
 Busca um pedido específico por ID (apenas admin).
 
-**Headers:**
-```
-Authorization: Bearer <token_admin>
-```
-
-**Parâmetros:**
-- `id` (path): ID do pedido (número)
-
-**Response (200 OK):**
-```json
-{
-  "id": 1,
-  "mesa_number": 5,
-  "status": "em_andamento",
-  "user_id": 1,
-  "user": {...},
-  "dishes": [...],
-  "created_at": "2024-01-15T10:30:00Z"
-}
-```
-
-**Erros:**
-- `400`: ID inválido
-- `401`: Token não fornecido ou inválido
-- `403`: Acesso negado (apenas admin)
-- `404`: Pedido não encontrado
-
----
-
 #### PUT /admin/pedidos/:id/status
 Atualiza o status de um pedido (apenas admin).
-
-**Headers:**
-```
-Authorization: Bearer <token_admin>
-```
-
-**Parâmetros:**
-- `id` (path): ID do pedido (número)
-
-**Request Body:**
-```json
-{
-  "status": "entregue" // ou "em_andamento"
-}
-```
-
-**Status válidos:**
-- `em_andamento`
-- `entregue`
-
-**Response (200 OK):**
-```json
-{
-  "message": "Status do pedido atualizado com sucesso!"
-}
-```
-
-**Erros:**
-- `400`: ID inválido ou status inválido
-- `401`: Token não fornecido ou inválido
-- `403`: Acesso negado (apenas admin)
-- `404`: Pedido não encontrado
-
----
 
 #### DELETE /admin/pedidos/:id
 Deleta um pedido (apenas admin).
 
-**Headers:**
-```
-Authorization: Bearer <token_admin>
-```
-
-**Parâmetros:**
-- `id` (path): ID do pedido (número)
-
-**Response (200 OK):**
-```json
-{
-  "message": "Pedido deletado com sucesso!"
-}
-```
-
-**Erros:**
-- `400`: ID inválido
-- `401`: Token não fornecido ou inválido
-- `403`: Acesso negado (apenas admin)
-- `404`: Pedido não encontrado
-
----
 
 ## 📊 Resumo das Rotas
 
